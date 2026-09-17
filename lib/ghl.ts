@@ -3,7 +3,7 @@
  * tags them "repurposer". Fire-and-forget: failures are logged, never block
  * the user or the rest of the capture flow.
  */
-const GHL_API_BASE = "https://services.leadconnectorhub.com";
+const GHL_API_BASE = "https://services.leadconnectorhq.com";
 const GHL_API_VERSION = "2021-07-28";
 
 export async function upsertGhlContact(
