@@ -7,6 +7,7 @@ const KEY = "repurposer_io_v1";
 
 export interface UsageState {
   user_email: string;
+  user_first_name: string;
   tries_used: number;
   max_tries: number;
   last_generation: { timestamp: string; formats: FormatId[] } | null;
@@ -17,6 +18,7 @@ const MAX_TRIES = Number(process.env.NEXT_PUBLIC_MAX_TRIES || 3);
 function fresh(): UsageState {
   return {
     user_email: "",
+    user_first_name: "",
     tries_used: 0,
     max_tries: MAX_TRIES,
     last_generation: null,
@@ -56,9 +58,9 @@ export function useUsage() {
     setHydrated(true);
   }, []);
 
-  const setEmail = useCallback((email: string) => {
+  const setLead = useCallback((email: string, firstName: string) => {
     setState((prev) => {
-      const next = { ...prev, user_email: email };
+      const next = { ...prev, user_email: email, user_first_name: firstName };
       write(next);
       return next;
     });
@@ -78,9 +80,9 @@ export function useUsage() {
 
   const reset = useCallback(() => {
     const next = fresh();
-    // keep the email so they don't re-enter it
+    // keep the email + name so they don't re-enter them
     setState((prev) => {
-      const merged = { ...next, user_email: prev.user_email };
+      const merged = { ...next, user_email: prev.user_email, user_first_name: prev.user_first_name };
       write(merged);
       return merged;
     });
@@ -95,7 +97,7 @@ export function useUsage() {
     triesLeft,
     canGenerate,
     hasEmail: Boolean(state.user_email),
-    setEmail,
+    setLead,
     recordGeneration,
     reset,
   };

@@ -64,7 +64,7 @@ export function Workbench() {
     }
   };
 
-  async function callApi(targetFormats: FormatId[], emailOverride?: string) {
+  async function callApi(targetFormats: FormatId[], emailOverride?: string, firstNameOverride?: string) {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -72,6 +72,7 @@ export function Workbench() {
         source,
         formats: targetFormats,
         email: emailOverride || usage.state.user_email,
+        firstName: firstNameOverride || usage.state.user_first_name,
         context: ctx,
       }),
     });
@@ -80,7 +81,7 @@ export function Workbench() {
     return data as Results & { consumed: boolean };
   }
 
-  async function runGenerate(emailOverride?: string) {
+  async function runGenerate(emailOverride?: string, firstNameOverride?: string) {
     setError(null);
     if (!enoughWords) return setError("Add at least 20 words so there is something to work with.");
     if (overWords) return setError(`That is ${words} words. Trim it to ${MAX_WORDS} or fewer.`);
@@ -91,7 +92,7 @@ export function Workbench() {
     setLoading(true);
     setResults(null);
     try {
-      const data = await callApi(formats, emailOverride);
+      const data = await callApi(formats, emailOverride, firstNameOverride);
       setResults({ outputs: data.outputs, missing: data.missing, provider: data.provider });
       usage.recordGeneration(formats);
     } catch (err) {
@@ -248,13 +249,13 @@ export function Workbench() {
             onRegenerate={regenerateOne}
           />
         ) : showWaitlist ? (
-          <WaitlistPrompt email={usage.state.user_email} />
+          <WaitlistPrompt email={usage.state.user_email} firstName={usage.state.user_first_name} />
         ) : (
           <ResultsEmpty picked={formats} />
         )}
         {!loading && results && showWaitlist && (
           <div className="mt-4">
-            <WaitlistPrompt email={usage.state.user_email} />
+            <WaitlistPrompt email={usage.state.user_email} firstName={usage.state.user_first_name} />
           </div>
         )}
       </div>
@@ -262,10 +263,10 @@ export function Workbench() {
       {showGate && (
         <EmailGate
           onClose={() => setShowGate(false)}
-          onSubmit={(email) => {
-            usage.setEmail(email);
+          onSubmit={(email, firstName) => {
+            usage.setLead(email, firstName);
             setShowGate(false);
-            runGenerate(email);
+            runGenerate(email, firstName);
           }}
         />
       )}

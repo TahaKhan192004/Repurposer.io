@@ -14,6 +14,7 @@ interface Body {
   source?: string;
   formats?: string[];
   email?: string;
+  firstName?: string;
   context?: GenerateContext;
 }
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
   const source = (body.source || "").trim();
   const rawFormats = Array.isArray(body.formats) ? body.formats : [];
   const email = (body.email || "").trim();
+  const firstName = (body.firstName || "").trim();
   const context: GenerateContext = {
     niche: body.context?.niche?.trim() || undefined,
     audience: body.context?.audience?.trim() || undefined,
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Fire-and-forget lead capture. Never blocks or fails the request.
-  void captureEmail(email, { formats: uniqueFormats, words });
+  void captureEmail(email, { firstName, formats: uniqueFormats, words });
 
   // --- generate ---
   const system = buildSystemPrompt();

@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 
-export function WaitlistPrompt({ email }: { email: string }) {
+export function WaitlistPrompt({
+  email,
+  firstName = "",
+}: {
+  email: string;
+  firstName?: string;
+}) {
   const [joined, setJoined] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -12,7 +18,7 @@ export function WaitlistPrompt({ email }: { email: string }) {
       await fetch("/api/waitlist", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, firstName }),
       });
     } catch {
       /* do not punish them for our network */

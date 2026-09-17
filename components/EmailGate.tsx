@@ -8,12 +8,14 @@ export function EmailGate({
   onSubmit,
   onClose,
 }: {
-  onSubmit: (email: string) => void;
+  onSubmit: (email: string, firstName: string) => void;
   onClose: () => void;
 }) {
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
-  const valid = isValidEmail(email);
+  const validName = firstName.trim().length > 0;
+  const valid = isValidEmail(email) && validName;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -57,10 +59,33 @@ export function EmailGate({
           onSubmit={(e) => {
             e.preventDefault();
             setTouched(true);
-            if (valid) onSubmit(email.trim());
+            if (valid) onSubmit(email.trim(), firstName.trim());
           }}
         >
-          <label htmlFor="gate-email" className="text-xs font-medium text-ink-soft">
+          <label htmlFor="gate-first-name" className="text-xs font-medium text-ink-soft">
+            First name
+          </label>
+          <input
+            id="gate-first-name"
+            name="firstName"
+            type="text"
+            autoComplete="given-name"
+            spellCheck={false}
+            autoFocus
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            onBlur={() => setTouched(true)}
+            placeholder="Jamie"
+            aria-invalid={touched && !validName}
+            className="w-full rounded-input border border-line-strong bg-paper/60 px-4 py-3 text-sm text-ink outline-none transition focus:border-accent focus:bg-surface"
+          />
+          {touched && !validName && (
+            <p role="alert" className="text-xs text-danger">
+              Let us know what to call you.
+            </p>
+          )}
+
+          <label htmlFor="gate-email" className="mt-2 text-xs font-medium text-ink-soft">
             Email address
           </label>
           <input
@@ -70,15 +95,14 @@ export function EmailGate({
             inputMode="email"
             autoComplete="email"
             spellCheck={false}
-            autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => setTouched(true)}
             placeholder="you@studio.com"
-            aria-invalid={touched && !valid}
+            aria-invalid={touched && !isValidEmail(email)}
             className="w-full rounded-input border border-line-strong bg-paper/60 px-4 py-3 text-sm text-ink outline-none transition focus:border-accent focus:bg-surface"
           />
-          {touched && !valid && (
+          {touched && !isValidEmail(email) && (
             <p role="alert" className="text-xs text-danger">
               That does not look like an email address.
             </p>
